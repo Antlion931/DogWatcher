@@ -119,7 +119,6 @@ fn main() -> ! {
     let mut delay = timer.count_down();
 
     // Set the LED to be an output
-    let mut led_pin = pins.led.into_push_pull_output();
     let mut red_led = pins.gpio15.into_push_pull_output();
     let mut green_led = pins.gpio14.into_push_pull_output();
     let mut yellow_led = pins.gpio13.into_push_pull_output();
@@ -178,9 +177,10 @@ fn main() -> ! {
             // the serial port is smaller than the buffers available to the USB
             // peripheral. In general, the return value should be handled, so that
             // bytes not transferred yet don't get lost.
-            while serial.write(text.as_bytes()).is_err() {} ;
+            if serial.write(text.as_bytes()).is_err() {
+                yellow_led.set_high().unwrap();
+            }
         }
-        yellow_led.set_high().unwrap();
 
         delay.start(1000.millis());
         let _ = nb::block!(delay.wait());
